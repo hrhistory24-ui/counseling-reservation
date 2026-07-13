@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>학생 상담 신청</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="script.js"></script>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <p class="header-label">COUNSELING RESERVATION</p>
+        <h1>학생 상담 신청</h1>
+        <p>
+          달력에서 상담 날짜를 선택한 뒤 원하는 시간에 신청하세요.
+        </p>
+      </div>
+    </header>
+
+    <main class="page-container">
+      <section class="notice-card">
+        <h2>상담 신청 안내</h2>
+
+        <ul>
+          <li>상담 가능한 날짜와 시간만 신청할 수 있습니다.</li>
+          <li>학번과 이름을 정확하게 입력해 주세요.</li>
+          <li>다른 학생이 신청한 시간은 선택할 수 없습니다.</li>
+        </ul>
+      </section>
+
+      <section class="reservation-layout">
+        <article class="calendar-card">
+          <div class="calendar-header">
+            <button
+              type="button"
+              id="prevMonthButton"
+              class="month-button"
+              aria-label="이전 달"
+            >
+              ‹
+            </button>
+
+            <h2 id="calendarTitle">2026년 7월</h2>
+
+            <button
+              type="button"
+              id="nextMonthButton"
+              class="month-button"
+              aria-label="다음 달"
+            >
+              ›
+            </button>
+          </div>
+
+          <div class="weekday-row" aria-hidden="true">
+            <span class="sunday">일</span>
+            <span>월</span>
+            <span>화</span>
+            <span>수</span>
+            <span>목</span>
+            <span>금</span>
+            <span class="saturday">토</span>
+          </div>
+
+          <div
+            id="calendarGrid"
+            class="calendar-grid"
+            aria-label="상담 신청 달력"
+          ></div>
+
+          <div class="calendar-guide">
+            <span>
+              <i class="guide-dot available-dot"></i>
+              상담 가능
+            </span>
+
+            <span>
+              <i class="guide-dot selected-dot"></i>
+              선택한 날짜
+            </span>
+          </div>
+        </article>
+
+        <article class="schedule-card">
+          <div class="schedule-header">
+            <p class="schedule-label">SELECTED DATE</p>
+            <h2 id="selectedDateTitle">날짜를 선택해 주세요</h2>
+            <p id="selectedDateDescription">
+              달력에서 파란색으로 표시된 날짜를 선택하세요.
+            </p>
+          </div>
+
+          <div id="timeSlotList" class="time-slot-list">
+            <div class="empty-message">
+              상담 날짜를 선택하면 시간표가 나타납니다.
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <div
+      id="reservationModal"
+      class="modal"
+      aria-hidden="true"
+    >
+      <div class="modal-backdrop" data-close-modal></div>
+
+      <section
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+      >
+        <button
+          type="button"
+          id="modalCloseButton"
+          class="modal-close"
+          aria-label="닫기"
+        >
+          ×
+        </button>
+
+        <p class="modal-label">COUNSELING APPLICATION</p>
+        <h2 id="modalTitle">상담 신청</h2>
+
+        <div class="selected-slot-box">
+          <p id="modalDateText"></p>
+          <strong id="modalTimeText"></strong>
+        </div>
+
+        <form id="reservationForm">
+          <div class="form-group">
+            <label for="studentNumber">학번</label>
+            <input
+              type="text"
+              id="studentNumber"
+              name="studentNumber"
+              maxlength="10"
+              placeholder="예: 30101"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="studentName">이름</label>
+            <input
+              type="text"
+              id="studentName"
+              name="studentName"
+              maxlength="10"
+              placeholder="예: 홍길동"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="consultationTarget">상담 대상</label>
+
+            <select
+                id="consultationTarget"
+                name="consultationTarget"
+                required
+            >
+                <option value="">선택하세요</option>
+                <option value="학생 본인">학생 본인</option>
+                <option value="학생 + 보호자">학생 + 보호자</option>
+                <option value="보호자">보호자</option>
+                <option value="기타">기타</option>
+            </select>
+            </div>
+
+            <div class="form-group">
+            <label for="consultationMethod">상담 방법</label>
+
+            <select
+                id="consultationMethod"
+                name="consultationMethod"
+                required
+            >
+                <option value="">선택하세요</option>
+                <option value="대면">대면</option>
+                <option value="전화">전화</option>
+                <option value="온라인(구글 미트)">
+                온라인(구글 미트)
+                </option>
+            </select>
+            </div>
+
+          <div class="form-group">
+            <label for="consultationType">상담 유형</label>
+            <select
+              id="consultationType"
+              name="consultationType"
+              required
+            >
+              <option value="">선택하세요</option>
+              <option value="진로·진학">진로·진학</option>
+              <option value="과목 선택">과목 선택</option>
+              <option value="학교생활">학교생활</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="consultationNote">
+              상담 희망 내용
+              <span>선택 입력</span>
+            </label>
+
+            <textarea
+              id="consultationNote"
+              name="consultationNote"
+              rows="4"
+              maxlength="200"
+              placeholder="상담받고 싶은 내용을 간단히 입력하세요."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              id="cancelButton"
+              class="secondary-button"
+            >
+              취소
+            </button>
+
+            <button type="submit" class="primary-button">
+              신청하기
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div
+      id="toastMessage"
+      class="toast-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+  </body>
+</html>

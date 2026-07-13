@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>상담 신청 관리자</title>
+
+    <link rel="stylesheet" href="admin.css" />
+    <script type="module" src="admin.js"></script>
+  </head>
+
+  <body>
+    <header class="admin-header">
+      <div class="header-inner">
+        <div>
+          <p class="header-label">COUNSELING ADMIN</p>
+          <h1>상담 신청 관리자</h1>
+        </div>
+
+        <button
+          type="button"
+          id="logoutButton"
+          class="logout-button"
+          hidden
+        >
+          로그아웃
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-container">
+      <!-- 관리자 로그인 -->
+      <section id="loginSection" class="login-card">
+        <h2>관리자 로그인</h2>
+        <p>
+          Firebase에 등록한 관리자 이메일과 비밀번호를
+          입력하세요.
+        </p>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="adminEmail">이메일</label>
+            <input
+              type="email"
+              id="adminEmail"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="adminPassword">비밀번호</label>
+            <input
+              type="password"
+              id="adminPassword"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="login-button">
+            로그인
+          </button>
+        </form>
+
+        <p id="loginMessage" class="message"></p>
+      </section>
+
+      <!-- 관리자 화면 -->
+      <section id="dashboardSection" hidden>
+      <section class="schedule-management-card">
+        <div class="schedule-management-heading">
+            <div>
+            <p class="section-label">SCHEDULE MANAGEMENT</p>
+            <h2>상담 일정 관리</h2>
+            <p>
+                상담 날짜와 시작·종료 시간을 선택하여 등록하세요.
+            </p>
+            </div>
+        </div>
+
+        <form id="scheduleForm" class="schedule-form">
+            <div class="schedule-field date-field">
+            <label for="scheduleDate">상담 날짜</label>
+
+            <input
+                type="date"
+                id="scheduleDate"
+                required
+            />
+            </div>
+
+            <fieldset class="time-fieldset">
+            <legend>시작 시간</legend>
+
+            <div class="time-select-group">
+                <select
+                id="startHour"
+                aria-label="시작 시"
+                required
+                ></select>
+
+                <span>시</span>
+
+                <select
+                id="startMinute"
+                aria-label="시작 분"
+                required
+                ></select>
+
+                <span>분</span>
+            </div>
+            </fieldset>
+
+            <fieldset class="time-fieldset">
+            <legend>종료 시간</legend>
+
+            <div class="time-select-group">
+                <select
+                id="endHour"
+                aria-label="종료 시"
+                required
+                ></select>
+
+                <span>시</span>
+
+                <select
+                id="endMinute"
+                aria-label="종료 분"
+                required
+                ></select>
+
+                <span>분</span>
+            </div>
+            </fieldset>
+
+            <div class="schedule-form-actions">
+            <button
+                type="button"
+                id="cancelScheduleEditButton"
+                class="schedule-cancel-button"
+                hidden
+            >
+                수정 취소
+            </button>
+
+            <button
+                type="submit"
+                id="saveScheduleButton"
+                class="schedule-save-button"
+            >
+                상담 시간 추가
+            </button>
+            </div>
+        </form>
+
+        <div class="schedule-list-heading">
+            <h3>등록된 상담 시간</h3>
+
+            <p id="scheduleCount">총 0개</p>
+        </div>
+
+        <div class="schedule-table-wrapper">
+            <table class="schedule-table">
+            <thead>
+                <tr>
+                <th>날짜</th>
+                <th>시작 시간</th>
+                <th>종료 시간</th>
+                <th>상태</th>
+                <th>관리</th>
+                </tr>
+            </thead>
+
+            <tbody id="scheduleTableBody">
+                <tr>
+                <td colspan="5" class="empty-cell">
+                    등록된 상담 시간이 없습니다.
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </section>
+        <div class="dashboard-heading">
+          <div>
+            <p class="section-label">RESERVATION LIST</p>
+            <h2>상담 신청 현황</h2>
+          </div>
+
+          <p id="reservationCount" class="reservation-count">
+            총 0건
+          </p>
+        </div>
+
+        <div class="reservation-tools">
+          <div class="filter-group">
+            <label for="reservationDateFilter">날짜별 보기</label>
+
+            <select id="reservationDateFilter">
+              <option value="all">전체 날짜</option>
+            </select>
+
+            <button
+              type="button"
+              id="resetReservationFilterButton"
+              class="filter-reset-button"
+            >
+              필터 초기화
+            </button>
+          </div>
+
+          <button
+            type="button"
+            id="downloadCsvButton"
+            class="csv-download-button"
+          >
+            CSV 다운로드
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>시간</th>
+                <th>학번</th>
+                <th>이름</th>
+                <th>상담 대상</th>
+                <th>상담 방법</th>
+                <th>상담 유형</th>
+                <th>상담 희망 내용</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+
+            <tbody id="reservationTableBody">
+              <tr>
+                <td colspan="10" class="empty-cell">
+                  신청 내역을 불러오는 중입니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="toastMessage"
+      class="toast-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+  </body>
+</html>

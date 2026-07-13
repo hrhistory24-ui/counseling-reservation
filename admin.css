@@ -1,0 +1,616 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #285ea8;
+  --primary-dark: #17467f;
+  --background: #f3f6fa;
+  --surface: #ffffff;
+  --text: #172033;
+  --subtext: #667085;
+  --border: #d9e1eb;
+  --danger: #c73535;
+  --success: #19744b;
+  --shadow: 0 12px 34px rgba(32, 54, 86, 0.1);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family:
+    Pretendard,
+    "Noto Sans KR",
+    Arial,
+    sans-serif;
+  color: var(--text);
+  background: var(--background);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.admin-header {
+  padding: 30px 20px;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    #153f76,
+    #2c69b4
+  );
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1400px, 100%);
+  margin: 0 auto;
+  gap: 20px;
+}
+
+.header-label,
+.section-label {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.logout-button {
+  padding: 11px 17px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  color: white;
+  background: transparent;
+  font-weight: 700;
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.admin-container {
+  width: min(1400px, calc(100% - 30px));
+  margin: 32px auto 70px;
+}
+
+.login-card {
+  width: min(480px, 100%);
+  margin: 70px auto;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.login-card h2 {
+  margin: 0 0 10px;
+}
+
+.login-card > p {
+  margin: 0 0 24px;
+  color: var(--subtext);
+  line-height: 1.6;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 700;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #c9d2df;
+  border-radius: 10px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(40, 94, 168, 0.12);
+}
+
+.login-button {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--primary);
+  font-weight: 800;
+}
+
+.login-button:hover {
+  background: var(--primary-dark);
+}
+
+.message {
+  min-height: 24px;
+  margin: 16px 0 0;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.dashboard-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.section-label {
+  color: var(--primary);
+}
+
+.dashboard-heading h2 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.reservation-count {
+  margin: 0;
+  color: var(--subtext);
+  font-weight: 700;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  min-width: 1250px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+th {
+  color: #344054;
+  background: #eef3f9;
+  font-size: 0.88rem;
+}
+
+td {
+  font-size: 0.92rem;
+}
+
+td.note-cell {
+  min-width: 240px;
+  max-width: 350px;
+  white-space: normal;
+  line-height: 1.55;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.status-waiting {
+  color: #875600;
+  background: #fff2cf;
+}
+
+.status-completed {
+  color: var(--success);
+  background: #dcf5e8;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 7px;
+}
+
+.complete-button,
+.cancel-reservation-button {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.complete-button {
+  border: 1px solid #9dcfb7;
+  color: var(--success);
+  background: #eefaf4;
+}
+
+.cancel-reservation-button {
+  border: 1px solid #e1abab;
+  color: var(--danger);
+  background: #fff3f3;
+}
+
+.empty-cell {
+  padding: 50px;
+  color: var(--subtext);
+  text-align: center;
+}
+
+.toast-message {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  visibility: hidden;
+  max-width: min(420px, calc(100% - 40px));
+  padding: 15px 19px;
+  border-radius: 11px;
+  color: white;
+  background: #173f70;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: 0.25s;
+}
+
+.toast-message.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .admin-header {
+    padding: 24px 15px;
+  }
+
+  .header-inner {
+    align-items: flex-start;
+  }
+
+  .admin-container {
+    width: calc(100% - 20px);
+    margin-top: 20px;
+  }
+
+  .login-card {
+    margin-top: 30px;
+    padding: 22px;
+  }
+
+  .dashboard-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.schedule-management-card {
+  margin-bottom: 35px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.schedule-management-heading {
+  margin-bottom: 24px;
+}
+
+.schedule-management-heading h2 {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.schedule-management-heading p:last-child {
+  margin: 0;
+  color: var(--subtext);
+  line-height: 1.6;
+}
+
+.schedule-form {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 1fr)
+    minmax(220px, 1fr)
+    minmax(220px, 1fr)
+    auto;
+  gap: 16px;
+  align-items: end;
+  padding: 22px;
+  border-radius: 15px;
+  background: #f6f8fb;
+}
+
+.schedule-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.schedule-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 12px;
+  border: 1px solid #c9d2df;
+  border-radius: 10px;
+  background: white;
+}
+
+.time-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.time-fieldset legend {
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.time-select-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.time-select-group select {
+  min-width: 72px;
+  min-height: 46px;
+  padding: 10px;
+  border: 1px solid #c9d2df;
+  border-radius: 10px;
+  background: white;
+  text-align: center;
+}
+
+.time-select-group span {
+  color: #475467;
+  font-weight: 700;
+}
+
+.schedule-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-save-button,
+.schedule-cancel-button {
+  min-height: 46px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.schedule-save-button {
+  border: 1px solid var(--primary);
+  color: white;
+  background: var(--primary);
+}
+
+.schedule-save-button:hover {
+  background: var(--primary-dark);
+}
+
+.schedule-cancel-button {
+  border: 1px solid #cbd3df;
+  color: #475467;
+  background: white;
+}
+
+.schedule-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 28px 0 12px;
+}
+
+.schedule-list-heading h3,
+.schedule-list-heading p {
+  margin: 0;
+}
+
+.schedule-list-heading p {
+  color: var(--subtext);
+  font-weight: 700;
+}
+
+.schedule-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.schedule-table {
+  width: 100%;
+  min-width: 720px;
+  box-shadow: none;
+}
+
+.schedule-status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.schedule-status-open {
+  color: #19744b;
+  background: #dcf5e8;
+}
+
+.schedule-status-reserved {
+  color: #875600;
+  background: #fff2cf;
+}
+
+.schedule-action-buttons {
+  display: flex;
+  gap: 7px;
+}
+
+.schedule-edit-button,
+.schedule-delete-button {
+  padding: 8px 11px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.schedule-edit-button {
+  border: 1px solid #9dbce3;
+  color: var(--primary-dark);
+  background: #eef5ff;
+}
+
+.schedule-delete-button {
+  border: 1px solid #e1abab;
+  color: var(--danger);
+  background: #fff3f3;
+}
+
+.schedule-edit-button:disabled,
+.schedule-delete-button:disabled {
+  color: #98a2b3;
+  border-color: #d0d5dd;
+  background: #f2f4f7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1050px) {
+  .schedule-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .schedule-form-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .schedule-management-card {
+    padding: 19px;
+  }
+
+  .schedule-form {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .schedule-form-actions {
+    grid-column: auto;
+    flex-direction: column-reverse;
+  }
+
+  .schedule-save-button,
+  .schedule-cancel-button {
+    width: 100%;
+  }
+
+  .time-select-group select {
+    flex: 1;
+  }
+}
+
+.reservation-tools {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+}
+
+.filter-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-group label {
+  display: block;
+  width: 100%;
+  font-weight: 700;
+}
+
+.filter-group select {
+  min-width: 180px;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #c9d2df;
+  border-radius: 9px;
+  background: white;
+}
+
+.filter-reset-button,
+.csv-download-button {
+  min-height: 42px;
+  padding: 9px 15px;
+  border-radius: 9px;
+  font-weight: 700;
+}
+
+.filter-reset-button {
+  border: 1px solid #c9d2df;
+  color: #475467;
+  background: white;
+}
+
+.csv-download-button {
+  border: 1px solid var(--primary);
+  color: white;
+  background: var(--primary);
+}
+
+.csv-download-button:hover {
+  background: var(--primary-dark);
+}
+
+@media (max-width: 700px) {
+  .reservation-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-group {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-group select,
+  .filter-reset-button,
+  .csv-download-button {
+    width: 100%;
+  }
+}
