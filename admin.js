@@ -88,12 +88,48 @@ const scheduleCount = document.querySelector(
   "#scheduleCount",
 );
 
+const scheduleDateFilter = document.querySelector(
+  "#scheduleDateFilter",
+);
+
+const resetScheduleFilterButton =
+  document.querySelector(
+    "#resetScheduleFilterButton",
+  );
+
+const scheduleFilterResult = document.querySelector(
+  "#scheduleFilterResult",
+);
+
+const schedulePagination = document.querySelector(
+  "#schedulePagination",
+);
+
+const prevSchedulePageButton =
+  document.querySelector(
+    "#prevSchedulePageButton",
+  );
+
+const nextSchedulePageButton =
+  document.querySelector(
+    "#nextSchedulePageButton",
+  );
+
+const schedulePageInfo = document.querySelector(
+  "#schedulePageInfo",
+);
+
 let consultationSchedules = {};
 let publicReservations = {};
 
 let editingScheduleId = null;
 let scheduleListenerStarted = false;
 let publicReservationListenerStarted = false;
+
+let scheduleCurrentPage = 1;
+let pendingScheduleFocusId = null;
+
+const scheduleItemsPerPage = 10;
 
 function createTimeOptions() {
   const hours = [
@@ -146,8 +182,8 @@ function createTimeOptions() {
 
   startHour.value = "09";
   startMinute.value = "00";
-  endHour.value = "09";
-  endMinute.value = "10";
+  endHour.value = "10";
+  endMinute.value = "00";
 }
 
 function makeTime(hour, minute) {
@@ -183,12 +219,20 @@ function listenToSchedules() {
   );
 
   onValue(
-    schedulesRef,
-    (snapshot) => {
-      consultationSchedules = snapshot.val() || {};
+  schedulesRef,
+  (snapshot) => {
+    consultationSchedules = snapshot.val() || {};
 
-      renderSchedules();
-    },
+    if (pendingScheduleFocusId) {
+      moveToSchedulePage(
+        pendingScheduleFocusId,
+      );
+
+      pendingScheduleFocusId = null;
+    }
+
+    renderSchedules();
+  },
     (error) => {
       console.error("상담 일정 불러오기 실패:", error);
 
@@ -236,8 +280,74 @@ function listenToPublicReservations() {
   );
 }
 
+function moveToSchedulePage(scheduleId) {
+  if (!scheduleId) {
+    return;
+  }
+
+  const targetSchedule =
+    consultationSchedules[scheduleId];
+
+  if (!targetSchedule) {
+    return;
+  }
+
+  /*
+   * 현재 날짜 필터가 추가한 일정의 날짜와 다르면
+   * 전체 일정 보기로 전환합니다.
+   */
+  if (
+    scheduleDateFilter.value &&
+    scheduleDateFilter.value !== targetSchedule.date
+  ) {
+    scheduleDateFilter.value = "";
+  }
+
+  const selectedDate = scheduleDateFilter.value;
+
+  const sortedScheduleEntries = Object.entries(
+    consultationSchedules,
+  )
+    .filter(([, schedule]) => {
+      if (!selectedDate) {
+        return true;
+      }
+
+      return schedule.date === selectedDate;
+    })
+    .sort(([, first], [, second]) => {
+      const firstValue =
+        `${first.date} ${first.startTime}`;
+
+      const secondValue =
+        `${second.date} ${second.startTime}`;
+
+      return firstValue.localeCompare(secondValue);
+    });
+
+  const scheduleIndex =
+    sortedScheduleEntries.findIndex(
+      ([currentScheduleId]) =>
+        currentScheduleId === scheduleId,
+    );
+
+  if (scheduleIndex === -1) {
+    return;
+  }
+
+  scheduleCurrentPage =
+    Math.floor(
+      scheduleIndex / scheduleItemsPerPage,
+    ) + 1;
+}
+
 function renderSchedules() {
-  const scheduleEntries = Object.entries(
+  const selectedDate = scheduleDateFilter.value;
+
+  /*
+   * 전체 일정을 날짜와 시작 시간순으로 정렬합니다.
+   */
+  const allScheduleEntries = Object.entries(
     consultationSchedules,
   ).sort(([, first], [, second]) => {
     const firstValue =
@@ -249,78 +359,214 @@ function renderSchedules() {
     return firstValue.localeCompare(secondValue);
   });
 
-  scheduleCount.textContent =
-    `총 ${scheduleEntries.length}개`;
+  /*
+   * 날짜가 선택된 경우 해당 날짜만 남깁니다.
+   */
+  const filteredScheduleEntries = selectedDate
+    ? allScheduleEntries.filter(
+        ([, schedule]) =>
+          schedule.date === selectedDate,
+      )
+    : allScheduleEntries;
 
-  if (scheduleEntries.length === 0) {
+  const totalScheduleCount =
+    allScheduleEntries.length;
+
+  const filteredScheduleCount =
+    filteredScheduleEntries.length;
+
+  scheduleCount.textContent =
+    `총 ${totalScheduleCount}개`;
+
+  if (selectedDate) {
+    scheduleFilterResult.textContent =
+      `${formatScheduleDate(selectedDate)} · ${filteredScheduleCount}개`;
+  } else {
+    scheduleFilterResult.textContent =
+      `전체 일정 · ${totalScheduleCount}개`;
+  }
+
+  /*
+   * 전체 페이지 수를 계산합니다.
+   * 일정이 없어도 페이지는 최소 1로 표시합니다.
+   */
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      filteredScheduleCount /
+        scheduleItemsPerPage,
+    ),
+  );
+
+  /*
+   * 삭제나 필터 적용 후 현재 페이지가
+   * 전체 페이지보다 커지는 상황을 막습니다.
+   */
+  if (scheduleCurrentPage > totalPages) {
+    scheduleCurrentPage = totalPages;
+  }
+
+  if (scheduleCurrentPage < 1) {
+    scheduleCurrentPage = 1;
+  }
+
+  schedulePageInfo.textContent =
+    `${scheduleCurrentPage} / ${totalPages}`;
+
+  prevSchedulePageButton.disabled =
+    scheduleCurrentPage === 1;
+
+  nextSchedulePageButton.disabled =
+    scheduleCurrentPage === totalPages;
+
+  /*
+   * 필터 결과가 없으면 빈 화면을 표시합니다.
+   */
+  if (filteredScheduleCount === 0) {
     scheduleTableBody.innerHTML = `
       <tr>
         <td colspan="5" class="empty-cell">
-          등록된 상담 시간이 없습니다.
+          ${
+            selectedDate
+              ? "선택한 날짜에 등록된 상담 시간이 없습니다."
+              : "등록된 상담 시간이 없습니다."
+          }
         </td>
       </tr>
     `;
 
+    schedulePagination.hidden = true;
+
     return;
   }
 
-  scheduleTableBody.innerHTML = scheduleEntries
-    .map(([slotId, schedule]) => {
-      const reserved = Boolean(
-        publicReservations[slotId],
-      );
+  schedulePagination.hidden =
+    filteredScheduleCount <= scheduleItemsPerPage;
 
-      return `
-        <tr>
-          <td>
-            ${escapeHtml(
-              formatScheduleDate(schedule.date),
-            )}
-          </td>
+  /*
+   * 현재 페이지에 해당하는 10개만 추출합니다.
+   */
+  const startIndex =
+    (scheduleCurrentPage - 1) *
+    scheduleItemsPerPage;
 
-          <td>${escapeHtml(schedule.startTime)}</td>
-          <td>${escapeHtml(schedule.endTime)}</td>
+  const endIndex =
+    startIndex + scheduleItemsPerPage;
 
-          <td>
-            <span
-              class="schedule-status ${
-                reserved
-                  ? "schedule-status-reserved"
-                  : "schedule-status-open"
-              }"
-            >
-              ${reserved ? "신청 있음" : "신청 가능"}
-            </span>
-          </td>
+  const paginatedScheduleEntries =
+    filteredScheduleEntries.slice(
+      startIndex,
+      endIndex,
+    );
 
-          <td>
-            <div class="schedule-action-buttons">
-              <button
-                type="button"
-                class="schedule-edit-button"
-                data-schedule-id="${escapeHtml(slotId)}"
-                ${reserved ? "disabled" : ""}
+  scheduleTableBody.innerHTML =
+    paginatedScheduleEntries
+      .map(([slotId, schedule]) => {
+        const reserved = Boolean(
+          publicReservations[slotId],
+        );
+
+        return `
+          <tr>
+            <td>
+              ${escapeHtml(
+                formatScheduleDate(schedule.date),
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(schedule.startTime)}
+            </td>
+
+            <td>
+              ${escapeHtml(schedule.endTime)}
+            </td>
+
+            <td>
+              <span
+                class="schedule-status ${
+                  reserved
+                    ? "schedule-status-reserved"
+                    : "schedule-status-open"
+                }"
               >
-                수정
-              </button>
+                ${
+                  reserved
+                    ? "신청 있음"
+                    : "신청 가능"
+                }
+              </span>
+            </td>
 
-              <button
-                type="button"
-                class="schedule-delete-button"
-                data-schedule-id="${escapeHtml(slotId)}"
-                ${reserved ? "disabled" : ""}
-              >
-                삭제
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
+            <td>
+              <div class="schedule-action-buttons">
+                <button
+                  type="button"
+                  class="schedule-edit-button"
+                  data-schedule-id="${escapeHtml(
+                    slotId,
+                  )}"
+                  ${reserved ? "disabled" : ""}
+                >
+                  수정
+                </button>
+
+                <button
+                  type="button"
+                  class="schedule-delete-button"
+                  data-schedule-id="${escapeHtml(
+                    slotId,
+                  )}"
+                  ${reserved ? "disabled" : ""}
+                >
+                  삭제
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
 
   attachScheduleEvents();
 }
+
+scheduleDateFilter.addEventListener(
+  "change",
+  () => {
+    scheduleCurrentPage = 1;
+    renderSchedules();
+  },
+);
+
+resetScheduleFilterButton.addEventListener(
+  "click",
+  () => {
+    scheduleDateFilter.value = "";
+    scheduleCurrentPage = 1;
+    renderSchedules();
+  },
+);
+
+prevSchedulePageButton.addEventListener(
+  "click",
+  () => {
+    if (scheduleCurrentPage <= 1) {
+      return;
+    }
+
+    scheduleCurrentPage -= 1;
+    renderSchedules();
+  },
+);
+
+nextSchedulePageButton.addEventListener(
+  "click",
+  () => {
+    scheduleCurrentPage += 1;
+    renderSchedules();
+  },
+);
 
 function attachScheduleEvents() {
   document
@@ -516,19 +762,35 @@ scheduleForm.addEventListener("submit", async (event) => {
     };
 
     if (editingScheduleId) {
+      const currentEditingScheduleId =
+        editingScheduleId;
+
       await set(
         ref(
           database,
-          `consultationSchedules/${editingScheduleId}`,
+          `consultationSchedules/${currentEditingScheduleId}`,
         ),
         scheduleData,
       );
+
+      /*
+      * 수정된 일정이 포함된 페이지로 이동합니다.
+      */
+      pendingScheduleFocusId =
+        currentEditingScheduleId;
 
       showToast("상담 시간을 수정했습니다.");
     } else {
       const newScheduleRef = push(
         ref(database, "consultationSchedules"),
       );
+
+      /*
+      * 새 일정이 포함된 페이지로 이동하기 위해
+      * Firebase 자동 생성 ID를 보관합니다.
+      */
+      pendingScheduleFocusId =
+        newScheduleRef.key;
 
       await set(newScheduleRef, {
         ...scheduleData,
@@ -538,10 +800,19 @@ scheduleForm.addEventListener("submit", async (event) => {
       showToast("상담 시간을 추가했습니다.");
     }
 
+    /*
+    * 날짜와 시간은 그대로 유지하고
+    * 수정 상태만 해제합니다.
+    */
     resetScheduleForm();
   } catch (error) {
+    pendingScheduleFocusId = null;
+
     console.error("상담 일정 저장 실패:", error);
-    showToast("상담 시간을 저장하지 못했습니다.");
+
+    showToast(
+      "상담 시간을 저장하지 못했습니다.",
+    );
   } finally {
     saveScheduleButton.disabled = false;
 
@@ -552,15 +823,39 @@ scheduleForm.addEventListener("submit", async (event) => {
   }
 });
 
-function resetScheduleForm() {
+function resetScheduleForm(
+  keepDate = true,
+  keepTime = true,
+) {
+  const currentDate = scheduleDate.value;
+
+  const currentStartHour = startHour.value;
+  const currentStartMinute = startMinute.value;
+
+  const currentEndHour = endHour.value;
+  const currentEndMinute = endMinute.value;
+
   editingScheduleId = null;
 
   scheduleForm.reset();
 
-  startHour.value = "09";
-  startMinute.value = "00";
-  endHour.value = "09";
-  endMinute.value = "10";
+  if (keepDate) {
+    scheduleDate.value = currentDate;
+  }
+
+  if (keepTime) {
+    startHour.value = currentStartHour;
+    startMinute.value = currentStartMinute;
+
+    endHour.value = currentEndHour;
+    endMinute.value = currentEndMinute;
+  } else {
+    startHour.value = "09";
+    startMinute.value = "00";
+
+    endHour.value = "10";
+    endMinute.value = "00";
+  }
 
   saveScheduleButton.textContent =
     "상담 시간 추가";
@@ -570,7 +865,9 @@ function resetScheduleForm() {
 
 cancelScheduleEditButton.addEventListener(
   "click",
-  resetScheduleForm,
+  () => {
+    resetScheduleForm(false);
+  },
 );
 
 let reservationListenerStarted = false;

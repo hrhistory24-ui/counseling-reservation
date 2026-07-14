@@ -159,9 +159,34 @@
         </form>
 
         <div class="schedule-list-heading">
-            <h3>등록된 상담 시간</h3>
+          <h3>등록된 상담 시간</h3>
 
-            <p id="scheduleCount">총 0개</p>
+          <p id="scheduleCount">총 0개</p>
+        </div>
+
+        <div class="schedule-list-tools">
+          <div class="schedule-filter-group">
+            <label for="scheduleDateFilter">
+              날짜별 보기
+            </label>
+
+            <input
+              type="date"
+              id="scheduleDateFilter"
+            />
+
+            <button
+              type="button"
+              id="resetScheduleFilterButton"
+              class="schedule-filter-reset-button"
+            >
+              필터 초기화
+            </button>
+          </div>
+
+          <p id="scheduleFilterResult" class="schedule-filter-result">
+            전체 일정
+          </p>
         </div>
 
         <div class="schedule-table-wrapper">
@@ -185,6 +210,31 @@
             </tbody>
             </table>
         </div>
+
+        <div
+          id="schedulePagination"
+          class="schedule-pagination"
+          aria-label="상담 일정 페이지"
+        >
+          <button
+            type="button"
+            id="prevSchedulePageButton"
+            class="schedule-page-button"
+          >
+            이전
+          </button>
+
+          <span id="schedulePageInfo">1 / 1</span>
+
+          <button
+            type="button"
+            id="nextSchedulePageButton"
+            class="schedule-page-button"
+          >
+            다음
+          </button>
+        </div>
+
         </section>
         <div class="dashboard-heading">
           <div>
@@ -249,6 +299,12 @@
             </tbody>
           </table>
         </div>
+
+        <div
+          id="schedulePagination"
+          class="schedule-pagination"
+          aria-label="상담 일정 페이지"
+        >
       </section>
     </main>
 
